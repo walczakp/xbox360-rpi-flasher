@@ -28,7 +28,7 @@ void XSPI_Powerup(void);
 void XSPI_Shutdown(void);
 
 void XSPI_EnterFlashmode(void);
-void XSPI_LeaveFlashmode(void);
+void XSPI_LeaveFlashmode(uint8_t force);
 
 void XSPI_Read(uint8_t reg, uint8_t* buf);
 uint16_t XSPI_ReadWord(uint8_t reg);

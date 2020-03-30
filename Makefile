@@ -1,6 +1,6 @@
 IDIR=$(shell pwd)
 CC=gcc
-CFLAGS=-I$(IDIR)
+CFLAGS=-Wall -g -I$(IDIR)
 
 ODIR=obj
 

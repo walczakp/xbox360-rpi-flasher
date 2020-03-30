@@ -5,7 +5,6 @@ uint8_t IN_FLASHMODE = 0;
 void XSPI_Init(void)
 {
 	wiringPiSetupGpio();
-	piHiPri(99);	
 //	PINOUT(KSK);
 	PINOUT(EJ);
 	PINOUT(XX);
@@ -73,11 +72,9 @@ void XSPI_EnterFlashmode(void)
 	IN_FLASHMODE = 1;
 }
 
-#include <stdio.h>
-
-void XSPI_LeaveFlashmode(void)
+void XSPI_LeaveFlashmode(uint8_t force)
 {
-	if (IN_FLASHMODE) {
+	if (IN_FLASHMODE || force) {
 		PINHIGH(SS);
 		PINLOW(EJ);
 	
