@@ -1,5 +1,6 @@
 #include "XNAND.h"
 #include "XSPI.h"
+#include <stdio.h>
 
 void XNAND_ClearStatus()
 {
@@ -18,8 +19,10 @@ uint8_t XNAND_WaitReady(uint16_t timeout)
 	do {
 		if (!(XSPI_ReadByte(0x04) & 0x01))
 			return 1;
+        delay(1);
 	} while (timeout--);
 
+    printf("Delay on WaitReady reached\n");
 	return 0;
 }
 

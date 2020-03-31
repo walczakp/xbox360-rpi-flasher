@@ -24,13 +24,18 @@ void read_nand(uint32_t start, uint32_t blocks, uint8_t* buffer)
     uint32_t len = blocks * (0x4200 / 4); // block size + spares 
     while (len) {
             uint8_t readNow;
+ 
+            if ((nextPage >> 5) % 4 == 0) {
+                printf("0x%x\r", nextPage >> 5);
+            }
        
             if (!wordsLeft) {
                 XNAND_StartRead(nextPage);
                 nextPage++;
                 wordsLeft = 0x84;
             }
-        
+
+       
             readNow = (len < wordsLeft) ? len : wordsLeft;
             XNAND_ReadFillBuffer(buffer, readNow);
         
@@ -41,6 +46,28 @@ void read_nand(uint32_t start, uint32_t blocks, uint8_t* buffer)
     
     printf("\nRead 0x%04x/%04x blocks\n", nextPage >> 5, blocks);
     piHiPri(0);
+}
+
+void nand_to_file(char* outputFilename) {
+    printf("file: %s\n", outputFilename);
+    FILE *ofp;
+    ofp = fopen(outputFilename, "wb");
+    if (ofp == NULL) {
+        fprintf(stderr, "Can't open output file %s!\n", outputFilename);
+        perror("Error cause");
+        exit(2);
+    }
+ 
+    uint32_t start = 0x00;
+    uint32_t blocks = 0x400;
+    uint32_t buff_size = sizeof(uint8_t) * blocks * 0x4200;
+    uint8_t *buff = (uint8_t*) malloc(buff_size);
+    read_nand(start, blocks, buff);
+
+    fwrite(buff, buff_size, 1, ofp);
+    fclose(ofp);
+
+    free(buff);
 }
 
 int main(void) {
@@ -64,25 +91,8 @@ int main(void) {
         exit(1);
     }
 
-    FILE *ofp;
-    char outputFilename[] = "nand.bin";
-    ofp = fopen(outputFilename, "wb");
-    if (ofp == NULL) {
-        fprintf(stderr, "Can't open output file %s!\n", outputFilename);
-        perror("Error cause");
-        exit(2);
-    }
- 
-    uint32_t start = 0x00;
-    uint32_t blocks = 0x400;
-    uint32_t buff_size = sizeof(uint8_t) * blocks * 0x4200;
-    uint8_t *buff = (uint8_t*) malloc(buff_size);
-    read_nand(start, blocks, buff);
-
-    fwrite(buff, buff_size, 1, ofp);
-    fclose(ofp);
-
-    free(buff);
+    nand_to_file("nand1.bin");
+    nand_to_file("nand2.bin");
 
     exit(0);
 }

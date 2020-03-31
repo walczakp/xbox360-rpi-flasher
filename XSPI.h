@@ -12,7 +12,7 @@
 #define MISO		9
 
 #define PINOUT(PIN)	pinMode(PIN, OUTPUT)
-#define PININ(PIN)	pinMode(PIN, INPUT)
+#define PININ(PIN)	pullUpDnControl(PIN, PUD_DOWN); pinMode(PIN, INPUT)
 
 #define PINHIGH(PIN)	digitalWrite(PIN, HIGH)
 #define PINLOW(PIN)	digitalWrite(PIN, LOW)

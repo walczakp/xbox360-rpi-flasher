@@ -11,6 +11,7 @@ void XSPI_Init(void)
 	PINOUT(SS);
 	PINOUT(SCK);
 	PINOUT(MOSI);
+    PININ(MISO);
 	
 	PINHIGH(EJ);
 	PINHIGH(SS);
