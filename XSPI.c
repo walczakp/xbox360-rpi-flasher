@@ -4,7 +4,6 @@ uint8_t IN_FLASHMODE = 0;
 
 void XSPI_Init(void)
 {
-	wiringPiSetupGpio();
 //	PINOUT(KSK);
 	PINOUT(EJ);
 	PINOUT(XX);

@@ -1,7 +1,7 @@
 #include "XSPI.h"
 #include "XNAND.h"
 #include "unpack.h"
-#include <wiringPi.h>
+#include <pigpio.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,13 +10,12 @@ uint8_t FlashConfig[4];
 void cleanup(void) {
     printf("Leaving flashmode!\n");
     XSPI_LeaveFlashmode(0);
+    gpioTerminate();
 }
 
 
 void read_nand(uint32_t start, uint32_t blocks, uint8_t* buffer)
 {
-    piHiPri(30);
-
     printf("Reading flash blocks 0x%04x-0x%04x...\n", start, blocks);
     uint32_t wordsLeft = 0;
     uint32_t nextPage = start << 5;
@@ -45,7 +44,6 @@ void read_nand(uint32_t start, uint32_t blocks, uint8_t* buffer)
     }
     
     printf("\nRead 0x%04x/%04x blocks\n", nextPage >> 5, blocks);
-    piHiPri(0);
 }
 
 void nand_to_file(char* outputFilename) {
@@ -71,7 +69,10 @@ void nand_to_file(char* outputFilename) {
 }
 
 int main(void) {
-    atexit(cleanup);
+    if (gpioInitialise() < 0) {
+        printf("pigpio initialization failed\n");
+        exit(1);   
+    }
 
     printf("Initializing XBOX360 SPI...\n");
     XSPI_Init();
@@ -92,7 +93,8 @@ int main(void) {
     }
 
     nand_to_file("nand1.bin");
-    nand_to_file("nand2.bin");
+    //nand_to_file("nand2.bin");
 
+    cleanup();
     exit(0);
 }

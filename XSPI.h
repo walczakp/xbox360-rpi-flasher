@@ -2,7 +2,7 @@
 #define _XSPI_H_
 
 #include <inttypes.h>
-#include <wiringPi.h>
+#include <pigpio.h>
 
 #define EJ		24
 #define	XX		23
@@ -11,15 +11,15 @@
 #define MOSI		10
 #define MISO		9
 
-#define PINOUT(PIN)	pinMode(PIN, OUTPUT)
-#define PININ(PIN)	pullUpDnControl(PIN, PUD_DOWN); pinMode(PIN, INPUT)
+#define PINOUT(PIN)	gpioSetMode(PIN, PI_OUTPUT)
+#define PININ(PIN)	gpioSetMode(PIN, PI_INPUT); gpioSetPullUpDown(PIN, PI_PUD_DOWN)
 
-#define PINHIGH(PIN)	digitalWrite(PIN, HIGH)
-#define PINLOW(PIN)	digitalWrite(PIN, LOW)
+#define PINHIGH(PIN) gpioWrite(PIN, 1)
+#define PINLOW(PIN)	gpioWrite(PIN, 0)
 
-#define	PINGET(PIN)	digitalRead(PIN)
+#define	PINGET(PIN)	gpioRead(PIN)
 
-#define _delay_ms(MS)	delay(MS)
+#define _delay_ms(MS)	gpioSleep(PI_TIME_RELATIVE, 0, MS * 1000)
 
 
 void XSPI_Init(void);

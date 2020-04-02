@@ -1,10 +1,10 @@
 IDIR=$(shell pwd)
 CC=gcc
-CFLAGS=-Wall -g -I$(IDIR)
+CFLAGS=-Wall -I$(IDIR)
 
 ODIR=obj
 
-LIBS=-lwiringPi
+LIBS=-pthread -lpigpio -lrt
 
 _DEPS = XSPI.h XNAND.h unpack.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
