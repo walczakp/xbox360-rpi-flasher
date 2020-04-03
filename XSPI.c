@@ -1,7 +1,5 @@
 #include "XSPI.h"
 
-uint8_t IN_FLASHMODE = 0;
-
 void XSPI_Init(void)
 {
 	wiringPiSetupGpio();
@@ -69,23 +67,17 @@ void XSPI_EnterFlashmode(void)
 	PINHIGH(EJ);
 	
 	_delay_ms(50);
-
-	IN_FLASHMODE = 1;
 }
 
-void XSPI_LeaveFlashmode(uint8_t force)
+void XSPI_LeaveFlashmode()
 {
-	if (IN_FLASHMODE || force) {
-		PINHIGH(SS);
-		PINLOW(EJ);
-	
-		_delay_ms(50);
-	
-		PINLOW(XX);
-		PINHIGH(EJ);
+	PINHIGH(SS);
+	PINLOW(EJ);
 
-		IN_FLASHMODE = 0;
-	}
+	_delay_ms(50);
+
+	PINLOW(XX);
+	PINHIGH(EJ);  
 }
 
 void XSPI_Read(uint8_t reg, uint8_t* buf)

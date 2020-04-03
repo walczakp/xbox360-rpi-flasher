@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define BYTES_PER_COMMAND 0x4
+
 void XNAND_ClearStatus(void);
 uint16_t XNAND_GetStatus(void);
 uint8_t XNAND_WaitReady(uint16_t timeout);

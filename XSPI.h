@@ -6,10 +6,10 @@
 
 #define EJ		24
 #define	XX		23
-#define	SS		8
+#define	SS		21
 #define SCK		11
-#define MOSI		10
-#define MISO		9
+#define MOSI		19
+#define MISO		4
 
 #define PINOUT(PIN)	pinMode(PIN, OUTPUT)
 #define PININ(PIN)	pullUpDnControl(PIN, PUD_DOWN); pinMode(PIN, INPUT)
@@ -28,7 +28,7 @@ void XSPI_Powerup(void);
 void XSPI_Shutdown(void);
 
 void XSPI_EnterFlashmode(void);
-void XSPI_LeaveFlashmode(uint8_t force);
+void XSPI_LeaveFlashmode(void);
 
 void XSPI_Read(uint8_t reg, uint8_t* buf);
 uint16_t XSPI_ReadWord(uint8_t reg);

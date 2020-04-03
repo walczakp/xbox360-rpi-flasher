@@ -6,10 +6,10 @@ ODIR=obj
 
 LIBS=-lwiringPi
 
-_DEPS = XSPI.h XNAND.h unpack.h
+_DEPS = XSPI.h XNAND.h functions.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o XSPI.o XNAND.o unpack.o
+_OBJ = main.o XSPI.o XNAND.o functions.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

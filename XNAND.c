@@ -4,7 +4,7 @@
 
 void XNAND_ClearStatus()
 {
-    uint8_t tmp[4];
+    uint8_t tmp[BYTES_PER_COMMAND];
     XSPI_Read(0x04, tmp);
     XSPI_Write(0x04, tmp);
 }
@@ -28,7 +28,7 @@ uint8_t XNAND_WaitReady(uint16_t timeout)
 
 uint16_t XNAND_Erase(uint32_t blockNum)
 {
-	uint8_t tmp[4];
+	uint8_t tmp[BYTES_PER_COMMAND];
 
 	XNAND_ClearStatus();
 
@@ -81,7 +81,7 @@ void XNAND_ReadFillBuffer(uint8_t* buf, uint8_t wordCount)
     {
         XSPI_Write0(0x08);
         XSPI_Read(0x10, buf);
-        buf += 4;
+        buf += BYTES_PER_COMMAND;
     }
 }
 
@@ -97,7 +97,7 @@ void XNAND_WriteProcess(uint8_t* buf, uint8_t wordCount)
     {
         XSPI_Write(0x10, buf);
         XSPI_WriteByte(0x08, 0x01);
-        buf += 4;
+        buf += BYTES_PER_COMMAND;
     }    
 }
 

@@ -1,54 +1,49 @@
 #include "XSPI.h"
 #include "XNAND.h"
-#include "unpack.h"
+#include "functions.h"
 #include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <argp.h>
 
-uint8_t FlashConfig[4];
-
-void cleanup(void) {
-    printf("Leaving flashmode!\n");
-    XSPI_LeaveFlashmode(0);
-}
+char desc[] = "XBOX360 NAND Flasher for Raspbery Pi";
+struct argp argp = { NULL, NULL, NULL, desc };
 
 
-void read_nand(uint32_t start, uint32_t blocks, uint8_t* buffer)
-{
-    piHiPri(30);
+uint8_t IN_FLASHMODE = 0;
 
-    printf("Reading flash blocks 0x%04x-0x%04x...\n", start, blocks);
-    uint32_t wordsLeft = 0;
-    uint32_t nextPage = start << 5;
-    
-    uint32_t len = blocks * (0x4200 / 4); // block size + spares 
-    while (len) {
-            uint8_t readNow;
- 
-            if ((nextPage >> 5) % 4 == 0) {
-                printf("0x%x\r", nextPage >> 5);
-            }
-       
-            if (!wordsLeft) {
-                XNAND_StartRead(nextPage);
-                nextPage++;
-                wordsLeft = 0x84;
-            }
+void read(struct FlashConfig*, char*);
+void cleanup(void);
 
-       
-            readNow = (len < wordsLeft) ? len : wordsLeft;
-            XNAND_ReadFillBuffer(buffer, readNow);
-        
-            buffer += (readNow*4);
-            wordsLeft -= readNow;
-            len -= readNow;
+int main(int argc, char *argv[]) {
+    atexit(cleanup);
+
+    argp_parse(&argp, argc, argv, 0, 0, NULL);
+    // exit(0);
+
+    printf("Initializing XBOX360 SPI...\n");
+    XSPI_Init();
+
+    printf("Entering flashmode...\n");
+    XSPI_EnterFlashmode();
+    IN_FLASHMODE = 1;
+
+    printf("Reading flash config...\n");
+    struct FlashConfig config;
+    if (!read_flash_config(&config)) {
+        printf("Your flash config is incorrect, check your wiring!\n");
+        exit(1);
     }
+//    print_flash_config(&config);
     
-    printf("\nRead 0x%04x/%04x blocks\n", nextPage >> 5, blocks);
-    piHiPri(0);
+
+    read(&config, "nand1.bin");
+    read(&config, "nand2.bin");
+
+    exit(0);
 }
 
-void nand_to_file(char* outputFilename) {
+void read(struct FlashConfig* config, char* outputFilename) {
     printf("file: %s\n", outputFilename);
     FILE *ofp;
     ofp = fopen(outputFilename, "wb");
@@ -59,10 +54,12 @@ void nand_to_file(char* outputFilename) {
     }
  
     uint32_t start = 0x00;
-    uint32_t blocks = 0x400;
-    uint32_t buff_size = sizeof(uint8_t) * blocks * 0x4200;
+    uint32_t blocks = config->blocks_count;
+    uint32_t rawPageSize = config->page_size + CRC_DATA_PER_PAGE;
+    uint32_t rawBlockSize = rawPageSize * config->pages_count;
+    uint32_t buff_size = sizeof(uint8_t) * blocks * rawBlockSize;
     uint8_t *buff = (uint8_t*) malloc(buff_size);
-    read_nand(start, blocks, buff);
+    read_nand(start, blocks, config, buff);
 
     fwrite(buff, buff_size, 1, ofp);
     fclose(ofp);
@@ -70,29 +67,10 @@ void nand_to_file(char* outputFilename) {
     free(buff);
 }
 
-int main(void) {
-    atexit(cleanup);
-
-    printf("Initializing XBOX360 SPI...\n");
-    XSPI_Init();
-
-    printf("Entering flashmode...\n");
-    XSPI_EnterFlashmode();
-
-    printf("Reading flash config...\n");
-    XSPI_Read(0, FlashConfig);
-    XSPI_Read(0, FlashConfig);    // works by reading it twice
-    
-    uint32_t flash_config = unpack_uint32_le(FlashConfig);
-    printf("Flash config: 0x%08x\n", flash_config);
-
-    if (flash_config <= 0) {
-        printf("Your flash config is incorrect, check your wiring!\n");
-        exit(1);
+void cleanup(void) {
+    if (IN_FLASHMODE) {
+        printf("Leaving flashmode!\n");
+        XSPI_LeaveFlashmode();
+        IN_FLASHMODE = 0;
     }
-
-    nand_to_file("nand1.bin");
-    nand_to_file("nand2.bin");
-
-    exit(0);
 }
