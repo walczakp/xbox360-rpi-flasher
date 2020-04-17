@@ -4,12 +4,12 @@
 #include <inttypes.h>
 #include <wiringPi.h>
 
-#define EJ 24
-#define XX 23
-#define SS 8
-#define SCK 11
-#define MOSI 10
-#define MISO 9
+#define EJ 24   // Eject
+#define XX 23   // Xbox Magic
+#define SS 26   // Chip Select
+#define SCK 11  // Serial Clock
+#define MOSI 10 // Master out Slave in
+#define MISO 9  // Master in Slave out
 
 #define PINOUT(PIN) pinMode(PIN, OUTPUT)
 #define PININ(PIN)                                                             \

@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 
-uint8_t FlashConfig[4];
+uint8_t FlashConfig1[4];
+uint8_t FlashConfig2[4];
 
 void cleanup(void) {
   printf("Leaving flashmode!\n");
@@ -77,19 +78,25 @@ int main(void) {
   XSPI_EnterFlashmode();
 
   printf("Reading flash config...\n");
-  XSPI_Read(0, FlashConfig);
-  XSPI_Read(0, FlashConfig); // works by reading it twice
+  uint32_t flash_config1;
+  uint32_t flash_config2;
 
-  uint32_t flash_config = unpack_uint32_le(FlashConfig);
-  printf("Flash config: 0x%08x\n", flash_config);
+  XSPI_Read(0, FlashConfig1);
+  flash_config1 = unpack_uint32_le(FlashConfig1);
+  printf("Flash config1: 0x%08x\n", flash_config1);
 
-  if (flash_config <= 0) {
+  XSPI_Read(0, FlashConfig2);
+  flash_config2 = unpack_uint32_le(FlashConfig2);
+  printf("Flash config2: 0x%08x\n", flash_config2);
+
+  if (flash_config2 <= 0) {
     printf("Your flash config is incorrect, check your wiring!\n");
     exit(1);
   }
 
   nand_to_file("nand1.bin");
   nand_to_file("nand2.bin");
+  nand_to_file("nand3.bin");
 
   exit(0);
 }

@@ -4,7 +4,7 @@ uint8_t IN_FLASHMODE = 0;
 
 void XSPI_Init(void) {
   wiringPiSetupGpio();
-  // PINOUT(KSK);
+
   PINOUT(EJ);
   PINOUT(XX);
   PINOUT(SS);
@@ -16,29 +16,7 @@ void XSPI_Init(void) {
   PINHIGH(SS);
   PINHIGH(XX);
   PINHIGH(SCK);
-  // PINHIGH(KSK);
   PINLOW(MOSI);
-}
-
-void XSPI_Powerup(void) {
-  /*	PINLOW(KSK);
-          _delay_ms(5);
-          PINHIGH(KSK);
-          _delay_ms(5);
-
-          PINLOW(KSK);
-          _delay_ms(5);
-          PINHIGH(KSK);
-          _delay_ms(5);
-
-          PINLOW(KSK);
-          _delay_ms(5);
-          PINHIGH(KSK);
-          _delay_ms(5);
-
-          PINLOW(KSK);
-          _delay_ms(5);
-          PINHIGH(KSK);*/
 }
 
 void XSPI_Shutdown(void) {
@@ -66,6 +44,7 @@ void XSPI_EnterFlashmode(void) {
 
   _delay_ms(50);
 
+  PINLOW(SS);
   IN_FLASHMODE = 1;
 }
 
@@ -85,10 +64,10 @@ void XSPI_LeaveFlashmode(uint8_t force) {
 
 void XSPI_Read(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
-
   *buf++ = XSPI_FetchByte();
   *buf++ = XSPI_FetchByte();
   *buf++ = XSPI_FetchByte();
@@ -101,6 +80,7 @@ uint16_t XSPI_ReadWord(uint8_t reg) {
   uint16_t res;
 
   PINLOW(SS);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -117,6 +97,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
   uint8_t res;
 
   PINLOW(SS);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -130,9 +111,9 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
 
 void XSPI_Write(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 2);
-
   XSPI_PutByte(*buf++);
   XSPI_PutByte(*buf++);
   XSPI_PutByte(*buf++);

@@ -23,4 +23,4 @@ xbox-flasher: $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ xbox-flasher 
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ xbox-flasher
