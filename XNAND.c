@@ -1,6 +1,4 @@
 #include "XNAND.h"
-#include "XSPI.h"
-#include <stdio.h>
 
 void XNAND_ClearStatus() {
   uint8_t tmp[4];

@@ -20,11 +20,10 @@ gpioSetMode(PIN, PI_INPUT)
 
 #define PINHIGH(PIN) gpioWrite(PIN, 1)
 #define PINLOW(PIN) gpioWrite(PIN, 0)
-
 #define PINGET(PIN) gpioRead(PIN)
 
 #define _delay_ms(MS) delay(MS)
-
+#define handshakeDelay() gpioDelay(50000)
 void XSPI_Init(void);
 
 void XSPI_Powerup(void);

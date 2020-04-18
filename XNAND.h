@@ -1,7 +1,9 @@
 #ifndef _XNAND_H_
 #define _XNAND_H_
 
+#include <stdio.h>
 #include <inttypes.h>
+#include "XSPI.h"
 
 void XNAND_ClearStatus(void);
 uint16_t XNAND_GetStatus(void);
