@@ -4,7 +4,7 @@ CFLAGS=-Wall -g -I$(IDIR)
 
 ODIR=obj
 
-LIBS=-lwiringPi -lcrypt -pthread -lm -lrt
+LIBS=-lpigpio -lcrypt -pthread -lm -lrt
 
 _DEPS = XSPI.h XNAND.h unpack.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))

@@ -14,8 +14,6 @@ void cleanup(void) {
 }
 
 void read_nand(uint32_t start, uint32_t blocks, uint8_t *buffer) {
-  piHiPri(30);
-
   printf("Reading flash blocks 0x%04x-0x%04x...\n", start, blocks);
   uint32_t wordsLeft = 0;
   uint32_t nextPage = start << 5;
@@ -43,7 +41,6 @@ void read_nand(uint32_t start, uint32_t blocks, uint8_t *buffer) {
   }
 
   printf("\nRead 0x%04x/%04x blocks\n", nextPage >> 5, blocks);
-  piHiPri(0);
 }
 
 void nand_to_file(char *outputFilename) {

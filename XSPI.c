@@ -1,9 +1,19 @@
 #include "XSPI.h"
 
 uint8_t IN_FLASHMODE = 0;
+int SPI_DEVICE;
 
 void XSPI_Init(void) {
-  wiringPiSetupGpio();
+  if (gpioInitialise() < 0){
+    printf("Couldn't initialize GPIO\n");
+    exit(-1);
+  }
+
+  SPI_DEVICE = spiOpen(0,50000,0x00);
+  if (SPI_DEVICE < 0){
+    printf("Couldn't initialize SPI\n");
+    exit(-1);
+  }
 
   PINOUT(EJ);
   PINOUT(XX);
@@ -24,7 +34,7 @@ void XSPI_Shutdown(void) {
   PINLOW(XX);
   PINLOW(EJ);
 
-  _delay_ms(50);
+  gpioDelay(50000);
 
   PINHIGH(EJ);
 }
@@ -32,17 +42,17 @@ void XSPI_Shutdown(void) {
 void XSPI_EnterFlashmode(void) {
   PINLOW(XX);
 
-  _delay_ms(50);
+  gpioDelay(50000);
 
   PINLOW(SS);
   PINLOW(EJ);
 
-  _delay_ms(50);
+  gpioDelay(50000);
 
   PINHIGH(XX);
   PINHIGH(EJ);
 
-  _delay_ms(50);
+  gpioDelay(50000);
 
   PINLOW(SS);
   IN_FLASHMODE = 1;
@@ -53,7 +63,7 @@ void XSPI_LeaveFlashmode(uint8_t force) {
     PINHIGH(SS);
     PINLOW(EJ);
 
-    _delay_ms(50);
+    gpioDelay(50000);
 
     PINLOW(XX);
     PINHIGH(EJ);
@@ -64,7 +74,7 @@ void XSPI_LeaveFlashmode(uint8_t force) {
 
 void XSPI_Read(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
-  delayMicroseconds(2);
+  gpioDelay(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -80,7 +90,7 @@ uint16_t XSPI_ReadWord(uint8_t reg) {
   uint16_t res;
 
   PINLOW(SS);
-  delayMicroseconds(2);
+  gpioDelay(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -97,7 +107,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
   uint8_t res;
 
   PINLOW(SS);
-  delayMicroseconds(2);
+  gpioDelay(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -111,7 +121,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
 
 void XSPI_Write(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
-  delayMicroseconds(2);
+  gpioDelay(2);
 
   XSPI_PutByte((reg << 2) | 2);
   XSPI_PutByte(*buf++);
@@ -141,14 +151,19 @@ void XSPI_Write0(uint8_t reg) {
 uint8_t XSPI_FetchByte() {
   uint8_t in = 0;
   PINLOW(MOSI);
-
   for (uint8_t i = 0; i < 8; i++) {
     PINHIGH(SCK);
     in |= PINGET(MISO) ? (1 << i) : 0x00;
     PINLOW(SCK);
   }
-
   return in;
+  // uint8_t in = 0;
+  // int check = spiRead(SPI_DEVICE, &in, 1);
+  // if(1 == check){
+  //   return in;
+  // }
+  // printf("spiRead Error: %i\n",check );
+  // return 0x00;
 }
 
 void XSPI_PutByte(uint8_t out) {
@@ -161,4 +176,8 @@ void XSPI_PutByte(uint8_t out) {
     PINHIGH(SCK);
     PINLOW(SCK);
   }
+  // int check = spiWrite(SPI_DEVICE, &out, 1);
+  // if(1 != check){
+  //   printf("spiRead Error: %i\n",check );
+  // }
 }

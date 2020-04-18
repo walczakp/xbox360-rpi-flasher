@@ -2,7 +2,9 @@
 #define _XSPI_H_
 
 #include <inttypes.h>
-#include <wiringPi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pigpio.h>
 
 #define EJ 24   // Eject
 #define XX 23   // Xbox Magic
@@ -11,15 +13,15 @@
 #define MOSI 10 // Master out Slave in
 #define MISO 9  // Master in Slave out
 
-#define PINOUT(PIN) pinMode(PIN, OUTPUT)
-#define PININ(PIN)                                                             \
-  pullUpDnControl(PIN, PUD_DOWN);                                              \
-  pinMode(PIN, INPUT)
+#define PINOUT(PIN) gpioSetMode(PIN, PI_OUTPUT)
+#define PININ(PIN)                 \
+gpioSetPullUpDown(PIN, PI_PUD_UP); \
+gpioSetMode(PIN, PI_INPUT)
 
-#define PINHIGH(PIN) digitalWrite(PIN, HIGH)
-#define PINLOW(PIN) digitalWrite(PIN, LOW)
+#define PINHIGH(PIN) gpioWrite(PIN, 1)
+#define PINLOW(PIN) gpioWrite(PIN, 0)
 
-#define PINGET(PIN) digitalRead(PIN)
+#define PINGET(PIN) gpioRead(PIN)
 
 #define _delay_ms(MS) delay(MS)
 
