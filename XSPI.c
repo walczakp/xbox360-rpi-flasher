@@ -30,6 +30,7 @@ void XSPI_Init(void) {
 }
 
 void XSPI_Shutdown(void) {
+  printf("Shutdown\n");
   PINHIGH(SS);
   PINLOW(XX);
   PINLOW(EJ);
