@@ -1,7 +1,7 @@
 # xbox360-rpi-flasher
 XBox 360 NAND reader/writer for Raspberry Pi 4 (might also work for Pi3b or others, but this is untested)
 
-Warning: this has not been properly tested yet. Proceed with caution. There's no tutorial, since I don't even own RPi4, also this is not intended to be used by inexperienced in compiling and modding. I'll happily accept a tutorial written by someone else tho.
+Warning: this has not been properly tested yet. Proceed with caution. There's no tutorial this is not intended to be used by inexperienced in compiling and modding. I'll happily accept a tutorial written by someone else tho. You must know how to edit files and compile them.
 
 Success RGH3.0'd Xbox 360 following the steps below : 
 
