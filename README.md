@@ -6,7 +6,7 @@ Warning: this has not been properly tested yet. Proceed with caution. There's no
 Success RGH3.0'd Xbox 360 following the steps below : 
 
 - Corona 16MB @mav2010
-- Jasper 16MB (with Pi4) @fabien4455
+- Jasper 16MB @fabien4455
 
 If you want the safe way, get a Raspberry Pi Pico and use Picoflasher. 
 
