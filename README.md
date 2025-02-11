@@ -7,6 +7,7 @@ If you want the safe way, get a Raspberry Pi Pico and use Picoflasher.
 
 
 Wiring Instructions for Pi 4, following the color coding for the Pico from Weekendmodder (https://weekendmodder.com/picoflasher):
+```
 Blue: GPIO23
 Green: GPIO24
 Black: MOSI (GPIO 10)
@@ -14,21 +15,21 @@ Orange: MISO (GPIO 9)
 Red: SCLK (GPIO 11)
 Brown: GPIO 26
 Yellow: Ground
-
+```
 
 Quick tutorial:
 
 0. follow the link above to understand how to solder the wires to the XBOX360 and connect them to the Pi4 as described. Connect the XBOX to the power supply and give it standby power. Don't turn it on!
 
 1. Compile and run to check general connectivity. It will not read or write anything really, but just establish a general connection and read out hte manufacturer code. It should give an output like this (example from a Corona 16MB Slim):
-
+```
 $ sudo ./xbox-flasher 
 Initializing XBOX360 SPI...
 Entering flashmode...
 Reading flash config...
 Flash config1: 0x00000000
 Flash config2: 0x00043000
-
+```
 If that works, go on and take the next steps.
 
 2. read NAND: uncomment the 3 nand_to_file() commands near the end of the main.c file and recompile. This dumps the NAND 3 times now, check afterwards with cksum that all dumps are identical and also check that JRunner can read them! If yes, the connection is stable enough to attempt a write.
