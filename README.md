@@ -1,7 +1,7 @@
 # xbox360-rpi-flasher
 XBox 360 NAND reader/writer for Raspberry Pi 4 (might also work for Pi3b or others, but this is untested)
 
-Warning: this has not been properly tested yet. mav2010 has successfully RGH3.0'd a Corona 16MB model following the steps below. Proceed with caution.
+Warning: this has not been properly tested yet. mav2010 has successfully RGH3.0'd a Corona 16MB model following the steps below. Proceed with caution. There's no tutorial, since I don't even own RPi4, also this is not intended to be used by inexperienced in compiling and modding. I'll happily accept a tutorial written by someone else tho.
 
 If you want the safe way, get a Raspberry Pi Pico and use Picoflasher. 
 
