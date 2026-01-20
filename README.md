@@ -203,7 +203,7 @@ NAND Chip
 
 This is why erase is required before write - you cannot flip 0 back to 1 without erasing.
 
-**Source:** [NAND Flash Basics - Embedded](https://www.embedded.com/flash-101-nand-flash-vs-nor-flash/)
+**Source:** [Wikipedia - Flash Memory](https://en.wikipedia.org/wiki/Flash_memory)
 
 ### Xbox 360 NAND Architecture
 
@@ -223,7 +223,7 @@ The Xbox 360 stores critical system data in NAND:
 0x100000-0xFFFFFF  Filesystem
 ```
 
-**Source:** [Free60 Project](https://free60project.github.io/)
+**Source:** [ConsoleMods Wiki - Xbox 360](https://consolemods.org/wiki/Xbox_360)
 
 ### The Boot Chain
 
@@ -238,7 +238,7 @@ Xbox 360 uses a chain-of-trust boot process:
 
 Each stage verifies the next using cryptographic signatures. RGH exploits the verification timing.
 
-**Source:** [Xbox 360 Security Research](https://beta.ivc.no/wiki/index.php/Xbox_360_Hacking)
+**Source:** [ConsoleMods Wiki - RGH3](https://consolemods.org/wiki/Xbox_360:RGH/RGH3)
 
 ### NAND Controller Hardware
 
@@ -258,7 +258,7 @@ CPU ──> Southbridge ──> NAND Controller ──> SPI Bus ──> NAND Chi
 
 I communicate with the controller, not the NAND directly.
 
-**Source:** [Free60 Project - Hardware](https://free60project.github.io/)
+**Source:** [PicoFlasher GitHub](https://github.com/X360Tools/PicoFlasher)
 
 ### SPI Protocol
 
@@ -294,7 +294,7 @@ uint8_t reverse(uint8_t b) {
 }
 ```
 
-**Source:** [SPI Protocol Overview](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface)
+**Source:** [Wikipedia - SPI Protocol](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface)
 
 ### Flash Configuration
 
@@ -558,16 +558,15 @@ JRunner source code compiles but has non-functional kernel dropdown. Pre-compile
 
 ## References
 
-1. [Free60 Project](https://free60project.github.io/) - Xbox 360 technical documentation
-2. [ConsoleMods Wiki](https://consolemods.org/wiki/Xbox_360) - Modding guides
-3. [PicoFlasher GitHub](https://github.com/X360Tools/PicoFlasher) - Protocol reference
-4. [WeekendModder](https://weekendmodder.com/picoflasher) - Wiring guides
-5. [J-Runner with Extras](https://github.com/Octal450/J-Runner-with-Extras) - Windows tool
-6. [SPI Protocol - Wikipedia](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface) - SPI basics
-7. [NAND Flash - Wikipedia](https://en.wikipedia.org/wiki/Flash_memory) - Flash memory concepts
-8. [Xbox 360 Security Wiki](https://beta.ivc.no/wiki/index.php/Xbox_360_Hacking) - Security research
+1. [ConsoleMods Wiki - Xbox 360](https://consolemods.org/wiki/Xbox_360) - Comprehensive modding guides and documentation
+2. [ConsoleMods Wiki - RGH3](https://consolemods.org/wiki/Xbox_360:RGH/RGH3) - RGH3 installation guide
+3. [PicoFlasher GitHub](https://github.com/X360Tools/PicoFlasher) - Protocol reference implementation
+4. [J-Runner with Extras](https://github.com/Octal450/J-Runner-with-Extras) - Windows NAND tool
+5. [Wikipedia - Serial Peripheral Interface](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface) - SPI protocol basics
+6. [Wikipedia - Flash Memory](https://en.wikipedia.org/wiki/Flash_memory) - NAND flash concepts
 
 ---
+
 
 ## License
 
