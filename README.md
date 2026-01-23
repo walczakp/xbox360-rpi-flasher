@@ -11,6 +11,17 @@ A complete rewrite of xbox360-rpi-flasher with universal NAND support, auto-dete
 
 ---
 
+<h2 align="center">⚠️ DISCLAIMER</h2>
+
+<p align="center">
+<strong>THIS PROJECT HAS NOT BEEN THOROUGHLY TESTED.</strong><br>
+<strong>TESTED AND CONFIRMED WORKING WITH BB JASPER 512MB ONLY.</strong><br><br>
+<strong>USE AT YOUR OWN RISK.</strong><br>
+<strong>I AM NOT RESPONSIBLE FOR ANY DAMAGE TO YOUR CONSOLE, NAND, OR GLITCH CHIP.</strong><br><br>
+
+<strong>THIS IS NOT A REPLACEMENT FOR GENUINE FLASHERS.</strong><br>
+</p>
+
 ## Table of Contents
 
 - [Overview](#overview)
