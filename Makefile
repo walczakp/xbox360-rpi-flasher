@@ -1,26 +1,34 @@
-IDIR=$(shell pwd)
-CC=gcc
-CFLAGS=-Wall -g -I$(IDIR)
+CC = gcc
+CFLAGS = -Wall -Wextra -I./src -O2
+LDFLAGS = 
 
-ODIR=obj
+# Detect OS
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    LDFLAGS += -lpigpio -lpthread -lrt
+endif
 
-LIBS=-lpigpio -lcrypt -pthread -lm -lrt
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
 
-_DEPS = XSPI.h XNAND.h unpack.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+TARGET = $(BIN_DIR)/pi4flasher
 
-_OBJ = main.o XSPI.o XNAND.o unpack.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+.PHONY: all clean directories
 
+all: directories $(TARGET)
 
-$(ODIR)/%.o: %.c $(DEPS)
-	@mkdir -p $(@D)
-	$(CC) -c -o $@ $< $(CFLAGS)
+directories:
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(BIN_DIR)
 
-xbox-flasher: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
-.PHONY: clean
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ xbox-flasher
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
