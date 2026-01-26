@@ -316,12 +316,39 @@ void print_banner(void) {
   printf("  ╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  "
          "╚═╝\n");
   printf("\n");
-  printf("     //       Xbox 360 NAND Flasher for Raspberry Pi 4       //\n");
+  printf("     //       Xbox 360 NAND Flasher for Raspberry Pi       //\n");
+  printf("\n");
+}
+
+void select_pi_model(void) {
+  int choice;
+  printf("+--------------------------------------------+\n");
+  printf("|         SELECT YOUR RASPBERRY PI           |\n");
+  printf("+--------------------------------------------+\n");
+  printf("|  [1] Raspberry Pi 4 (40-pin header)        |\n");
+  printf("|  [2] Raspberry Pi 1 Model B (26-pin)       |\n");
+  printf("+--------------------------------------------+\n");
+  printf("\nChoice: ");
+
+  if (scanf("%d", &choice) != 1) {
+    choice = 1; // Default to Pi4
+  }
+  while (getchar() != '\n')
+    ; // consume newline
+
+  if (choice == 2) {
+    GPIO_SetPiModel(PI_MODEL_1B);
+  } else {
+    GPIO_SetPiModel(PI_MODEL_4);
+  }
   printf("\n");
 }
 
 int main(int argc, char *argv[]) {
   print_banner();
+
+  // Select Pi model BEFORE GPIO init
+  select_pi_model();
 
   if (GPIO_Init() < 0) {
     return 1;

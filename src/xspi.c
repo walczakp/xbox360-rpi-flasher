@@ -11,7 +11,7 @@ static int spi_handle = -1;
 
 // SPI Configuration
 #define SPI_CHANNEL 0
-#define SPI_BAUD 10000000 // 10MHz - verified reliable (10x faster than original)
+#define SPI_BAUD 1000000 // 1MHz - safer for Pi 1B / long wires
 
 int XSPI_Init(void) {
   if (spi_handle >= 0)

@@ -54,7 +54,7 @@ int XNAND_WaitReady(uint32_t timeout) {
     if (!(status & 0x01)) { // Busy bit
       return 0;
     }
-    usleep(100); // 100us delay to prevent CPU spin
+    usleep(10000); // 10ms delay (was 100us - too fast!)
   } while (timeout--);
 
   printf("[-] XNAND_WaitReady: Timeout waiting for NAND (status stuck busy)\n");
@@ -80,7 +80,7 @@ XNAND_Config XNAND_GetConfig(void) {
   //   - 512MB: Jasper 512MB
 
   if (conf.major_version >= 1) {
-    // Big Block NAND detected
+    // Check Minor Version for Big Block
     if (conf.minor_version == 2) {
       // 256MB Big Block
       conf.erase_block_size = 0x20000; // 128KB
@@ -90,8 +90,9 @@ XNAND_Config XNAND_GetConfig(void) {
       conf.erase_block_size = 0x40000; // 256KB
       conf.size_mb = 512;
     } else {
-      // 16MB Big Block (minor_version == 0 or 1 with major >= 1)
-      conf.erase_block_size = 0x20000; // 128KB
+      // 16MB Small Block (Jasper 16MB / Xenon etc often have major=1 too)
+      // Reference: 0x00023010 is 16MB Small Block
+      conf.erase_block_size = 0x4000; // 16KB
       conf.size_mb = 16;
     }
   } else {
@@ -145,28 +146,78 @@ int XNAND_EraseBlock(uint32_t sector_index) {
 
   // Enable write/erase in config register
   uint32_t cfg = XSPI_ReadReg(REG_CONFIG);
-  XSPI_WriteReg(
-      REG_CONFIG,
-      cfg | 0x08); // Set bit 3? Or is it implicit? xbox360-rpi-flasher does it.
+  XSPI_WriteReg(REG_CONFIG, cfg | 0x08);
 
+  // Set address
   XSPI_WriteReg(REG_ADDR, sector_index << 9);
 
-  // Unlock sequence
-  XSPI_WriteReg(REG_CMD, CMD_BLOCK);
-  XSPI_WriteReg(REG_CMD, CMD_UNLOCK);
-  XSPI_WriteReg(REG_CMD, CMD_EXEC_ER);
+  // Wait after setting address
+  if (XNAND_WaitReady(0x1000) < 0)
+    return -1;
 
+  // Send AA, 55 sequence
+  XSPI_WriteReg(REG_CMD, CMD_BLOCK);  // 0xAA
+  XSPI_WriteReg(REG_CMD, CMD_UNLOCK); // 0x55
+
+  // Wait after unlock sequence
   if (XNAND_WaitReady(0x1000) < 0)
     return -2;
+
+  // Execute erase
+  XSPI_WriteReg(REG_CMD, CMD_EXEC_ER); // 0x05
+
+  // Wait for erase to complete
+  // Big Block needs longer timeout, Small Block relies on this too
+  if (XNAND_WaitReady(0x10000) < 0)
+    return -3;
 
   return 0;
 }
 
-int XNAND_WriteSector(uint32_t sector_index, const uint8_t *buffer,
-                      const uint8_t *spare) {
-  // Check start of block and erase if necessary
-  // Note: This logic assumes sequential writing! Random access writing might
-  // erase neighbors.
+// Logic for Small Block (16MB) - matches Original Tool structure
+int XNAND_WriteSector_SmallBlock(uint32_t sector_index, const uint8_t *buffer,
+                                 const uint8_t *spare) {
+  // Erase ahead if at start of block
+  if ((sector_index % current_config.sectors_per_block) == 0) {
+    if (XNAND_EraseBlock(sector_index) < 0)
+      return -2;
+  }
+
+  XNAND_ClearStatus();
+  XSPI_WriteReg(REG_ADDR, 0); // Reset pointer for filling buffer
+
+  // Write Data
+  for (int i = 0; i < 128; i++) {
+    XSPI_WriteReg(REG_DATA, *(uint32_t *)&buffer[i * 4]);
+    XSPI_WriteReg(REG_CMD, CMD_WRITE);
+  }
+  // Write Spare
+  for (int i = 0; i < 4; i++) {
+    XSPI_WriteReg(REG_DATA, *(uint32_t *)&spare[i * 4]);
+    XSPI_WriteReg(REG_CMD, CMD_WRITE);
+  }
+
+  // Original tool didn't wait here? We will just in case to be safe, fast
+  // enough.
+
+  // Execute Write: Set Address then Command
+  XSPI_WriteReg(REG_ADDR, sector_index << 9);
+
+  // 55, AA, 04 sequence (Original style)
+  XSPI_WriteReg(REG_CMD, CMD_UNLOCK);
+  XSPI_WriteReg(REG_CMD, CMD_CONFIRM);
+  XSPI_WriteReg(REG_CMD, CMD_EXEC_WR);
+
+  if (XNAND_WaitReady(0x10000) < 0)
+    return -5;
+
+  return 0;
+}
+
+// Logic for Big Block (Jasper 256/512) - PicoFlasher style
+int XNAND_WriteSector_BigBlock(uint32_t sector_index, const uint8_t *buffer,
+                               const uint8_t *spare) {
+  // Erase ahead if at start of block
   if ((sector_index % current_config.sectors_per_block) == 0) {
     if (XNAND_EraseBlock(sector_index) < 0)
       return -2;
@@ -175,13 +226,12 @@ int XNAND_WriteSector(uint32_t sector_index, const uint8_t *buffer,
   XNAND_ClearStatus();
   XSPI_WriteReg(REG_ADDR, 0);
 
-  // Write 512 data
+  // Write Data
   for (int i = 0; i < 128; i++) {
     XSPI_WriteReg(REG_DATA, *(uint32_t *)&buffer[i * 4]);
     XSPI_WriteReg(REG_CMD, CMD_WRITE);
   }
-
-  // Write 16 spare
+  // Write Spare
   for (int i = 0; i < 4; i++) {
     XSPI_WriteReg(REG_DATA, *(uint32_t *)&spare[i * 4]);
     XSPI_WriteReg(REG_CMD, CMD_WRITE);
@@ -200,8 +250,17 @@ int XNAND_WriteSector(uint32_t sector_index, const uint8_t *buffer,
   XSPI_WriteReg(REG_CMD, CMD_CONFIRM);
   XSPI_WriteReg(REG_CMD, CMD_EXEC_WR);
 
-  if (XNAND_WaitReady(0x1000) < 0)
+  if (XNAND_WaitReady(0x10000) < 0)
     return -5;
 
   return 0;
+}
+
+int XNAND_WriteSector(uint32_t sector_index, const uint8_t *buffer,
+                      const uint8_t *spare) {
+  if (current_config.size_mb > 16) {
+    return XNAND_WriteSector_BigBlock(sector_index, buffer, spare);
+  } else {
+    return XNAND_WriteSector_SmallBlock(sector_index, buffer, spare);
+  }
 }

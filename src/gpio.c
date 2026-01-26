@@ -5,6 +5,10 @@
 
 #include "gpio.h"
 
+// Global variables for Pi model configuration
+int PIN_SS = PIN_SS_PI4; // Default to Pi4 (GPIO 26)
+static PiModel current_model = PI_MODEL_4;
+
 #ifdef __APPLE__
 // Mock implementation for macOS development
 int gpioInitialise(void) {
@@ -61,6 +65,19 @@ int spiXfer(unsigned handle, char *txBuf, char *rxBuf, unsigned count) {
   return count;
 }
 #endif
+
+void GPIO_SetPiModel(PiModel model) {
+  current_model = model;
+  if (model == PI_MODEL_4) {
+    PIN_SS = PIN_SS_PI4; // GPIO 26
+    printf("[*] Pi Model: Raspberry Pi 4 (SS = GPIO %d)\n", PIN_SS);
+  } else if (model == PI_MODEL_1B) {
+    PIN_SS = PIN_SS_PI1B; // GPIO 8
+    printf("[*] Pi Model: Raspberry Pi 1 Model B (SS = GPIO %d)\n", PIN_SS);
+  }
+}
+
+PiModel GPIO_GetPiModel(void) { return current_model; }
 
 int GPIO_Init(void) {
   if (gpioInitialise() < 0) {
