@@ -139,12 +139,12 @@ if (major >= 1) {
 
 | Motherboard | NAND | Block Type | Status |
 |-------------|------|------------|--------|
-| Xenon/Zephyr/Falcon/Opus | 16MB | Small | Supported |
-| Jasper 16MB | 16MB | Small* | Supported |
-| Jasper 256MB | 256MB | Big | Supported |
+| Xenon/Zephyr/Falcon/Opus | 16MB | Small | ? |
+| Jasper 16MB | 16MB | Small* | ? |
+| Jasper 256MB | 256MB | Big | ? |
 | Jasper 512MB | 512MB | Big | Verified |
-| Trinity | 16MB | Small | Supported |
-| Corona (SPI) | 16MB | Small | Supported |
+| Trinity | 16MB | Small | ? |
+| Corona (SPI) | 16MB | Small | ? |
 | Corona (eMMC) | 4GB | eMMC | Not Supported |
 
 *\*Jasper 16MB is technically a Big Block chip (128KB erase) but configured as Small Block (16KB erasable area) by the SMC. This fork correctly handles this quirk.*
