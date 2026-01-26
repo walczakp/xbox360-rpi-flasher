@@ -124,11 +124,13 @@ if (major >= 1) {
 
 ## Features
 
-- Universal NAND support (16/256/512MB)
+- Universal NAND Support (16/256/512MB)
+- **Hybrid Write Architecture:** Uses original, proven logic for 16MB NANDs and modern PicoFlasher logic for Big Blocks
+- **Multi-Pi Support:** Works on Pi 4 and Pi 1 Model B (and likely others)
 - Automatic console detection
-- Interactive CLI menu
+- Interactive CLI menu with model selection
 - Triple-read verification
-- 10MHz hardware SPI
+- 10MHz hardware SPI (adjustable)
 - Zero-warning build
 
 ---
@@ -138,28 +140,43 @@ if (major >= 1) {
 | Motherboard | NAND | Block Type | Status |
 |-------------|------|------------|--------|
 | Xenon/Zephyr/Falcon/Opus | 16MB | Small | Supported |
-| Jasper 16MB | 16MB | Big | Supported |
+| Jasper 16MB | 16MB | Small* | Supported |
 | Jasper 256MB | 256MB | Big | Supported |
-| Jasper 512MB | 512MB | Big | Tested |
+| Jasper 512MB | 512MB | Big | Verified |
 | Trinity | 16MB | Small | Supported |
 | Corona (SPI) | 16MB | Small | Supported |
 | Corona (eMMC) | 4GB | eMMC | Not Supported |
+
+*\*Jasper 16MB is technically a Big Block chip (128KB erase) but configured as Small Block (16KB erasable area) by the SMC. This fork correctly handles this quirk.*
 
 ---
 
 ## Hardware Setup
 
-### Wiring
+### Raspberry Pi 4 Wiring (40-pin header)
 
-| Pi4 GPIO | Xbox Pin | Function |
-|----------|----------|----------|
-| GPIO 10 | MOSI | Data Out |
-| GPIO 9 | MISO | Data In |
-| GPIO 11 | SCLK | Clock |
-| GPIO 26 | SS | Chip Select |
-| GPIO 23 | XX | SMC Reset |
-| GPIO 24 | EJ | Debug Enable |
-| GND | GND | Ground |
+| Wire Color | Function | GPIO | Pin # | Location |
+|------------|----------|------|-------|----------|
+| **Yellow** | GND | - | 6 | Row 3 Right |
+| **Black** | MOSI | 10 | 19 | Row 10 Left |
+| **Orange** | MISO | 9 | 21 | Row 11 Left |
+| **Red** | SCLK | 11 | 23 | Row 12 Left |
+| **Brown** | SS | 26 | 37 | Row 19 Left |
+| **Blue** | XX | 23 | 16 | Row 8 Right |
+| **Green** | EJ | 24 | 18 | Row 9 Right |
+
+### Raspberry Pi 1 Model B Wiring (26-pin header)
+*Select "Raspberry Pi 1 Model B" in the menu startup.*
+
+| Wire Color | Function | GPIO | Pin # | Location |
+|------------|----------|------|-------|----------|
+| **Yellow** | GND | - | 6 | Row 3 Right |
+| **Black** | MOSI | 10 | 19 | Row 10 Left |
+| **Orange** | MISO | 9 | 21 | Row 11 Left |
+| **Red** | SCLK | 11 | 23 | Row 12 Left |
+| **Brown** | SS | 8 | 24 | Row 12 Right |
+| **Blue** | XX | 23 | 16 | Row 8 Right |
+| **Green** | EJ | 24 | 18 | Row 9 Right |
 
 **Important:** Xbox must be in standby (power connected, not turned on).
 
@@ -185,7 +202,7 @@ make
 ## Usage
 
 ```bash
-sudo ./bin/pi4flasher          # Interactive mode
+sudo ./bin/pi4flasher          # Interactive mode (Select model first)
 sudo ./bin/pi4flasher info     # Show NAND info
 sudo ./bin/pi4flasher read f   # Read to file
 sudo ./bin/pi4flasher write f  # Write from file
@@ -516,6 +533,32 @@ main.c    - User interface
 **Mine:** Shows console info on startup
 
 **Why:** Users know immediately if connection works.
+
+### 6. Split Write Architecture (New in v2.1)
+
+**Original Tool Logic:**
+- Used for 16MB Small Block Consoles (tested & reliable)
+- Erases block 0, writes pages 0-31, erases block 1...
+- `0x55 -> 0xAA -> 0x04` sequence
+
+**PicoFlasher Logic:**
+- Used for Big Block Consoles (256/512MB)
+- Different erase timing and address management
+- Explicitly handles 128KB erase block sizes
+
+**Why I Split Them:**
+Initial versions of this fork applied the Big Block logic to 16MB consoles, which caused corruption because of the different erase block sizes (16KB vs 128KB). By creating two separate write paths in `xnand.c`, we get the best of both worlds: reliable 16MB writes using the proven original method, and new Big Block support using modern PicoFlasher methods.
+
+### 7. Raspberry Pi 1 Support
+
+**Problem:** The Pi 1 B (26-pin) doesn't have GPIO 26, which was hardcoded for `SS` (Chip Select).
+
+**Solution:**
+- Added a boot menu to select Pi Model.
+- If Pi 1 is selected, `SS` is remapped to **GPIO 8** (Pin 24).
+- SPI frequency lowered to 1MHz for stability on older hardware.
+
+**Why:** Many users use older Pis for this simple task. Support ensures hardware doesn't go to waste.
 
 ---
 
