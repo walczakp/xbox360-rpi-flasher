@@ -1,3 +1,10 @@
+# This repo is now archived
+# It is not advised to use this code
+
+Instead, please check out fork of this repo by @BRMilev22 here: https://github.com/BRMilev22/xbox360-rpi-flasher which is a vastly superior version, with improved UX and additional support for consoles with NAND different than 16MB.
+
+# --------------------------------
+
 # xbox360-rpi-flasher
 XBox 360 NAND reader/writer for Raspberry Pi 4 (might also work for Pi3b or others, but this is untested)
 
